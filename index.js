@@ -19,6 +19,10 @@ let currentBtcBitfinexUsd=0;
 let intervalPriceAlarm = null;
 let intervalAlarmFlag = 0;
 
+app.get("/", (req,res)=>{
+  res.send("<p>Telegram Bot. It is running now.</p>");
+});
+
 app.post("/", (req, res) => {
   const chatId = req.body.message.chat.id;
   const sentMessage = req.body.message.text;
