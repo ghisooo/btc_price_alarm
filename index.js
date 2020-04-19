@@ -18,6 +18,7 @@ let currentBtcUpbitKrw=0;
 let currentBtcBitfinexUsd=0;
 let intervalPriceAlarm = null;
 let intervalAlarmFlag = 0;
+let currentPriceReq = 0;
 
 app.get("/", (req,res)=>{
   res.send("<p>Telegram Bot. It is running now.</p>");
@@ -28,6 +29,7 @@ app.post("/", (req, res) => {
   const sentMessage = req.body.message.text;
 
   if (sentMessage.match(/price/gi)) {
+    currentPriceReq=1;
     priceAlarm(chatId);
   } else if (sentMessage.match(/start/gi)) {
     intervalAlarmFlag = 1;
@@ -55,9 +57,9 @@ async function getPrice() {
 function pushNotification(obj){
   const priceChange = (prevBtcUpbitKrw === 0) ? 0 : ((currentBtcUpbitKrw - prevBtcUpbitKrw) * 100) / prevBtcUpbitKrw;
   if (
-    intervalAlarmFlag === 0 ||
-    (intervalAlarmFlag === 1 && priceChange <= -3) ||
-    (intervalAlarmFlag === 1 && priceChange >= 5)
+    currentPriceReq ===1 ||
+    priceChange <= -3 ||
+    priceChange >= 5
   ) {
     // when price drops more than 3% or goes up more than 5%
     obj.upbit = priceChange;
@@ -66,6 +68,7 @@ function pushNotification(obj){
         ? 0
         : ((currentBtcBitfinexUsd - prevBtcBitfinexUsd) * 100) /
           prevBtcBitfinexUsd;
+    currentPriceReq = 0;
     return true;
   } else {
     return false;
